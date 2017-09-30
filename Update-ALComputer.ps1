@@ -1,5 +1,5 @@
 <#
-
+TEST
 .SYNOPSIS
 Retrieves computer names from a specified group in Active Directory and remotely performs various operations against these
 systems in support of AppLocker configuration.
@@ -30,19 +30,25 @@ function Update-ALComputer {
         [parameter(Mandatory=$true,ValueFromPipeline=$true)]
         [string[]]$adgroupname,
         
-        [parameter(Mandatory=$false)]
-        [alias("klist")]
         [switch]$klist,
         
-        [parameter(Mandatory=$false)]
-        [alias("gpupdate")]
         [switch]$gpupdate,
 
-        [parameter(Mandatory=$false)]
-        [alias("startal")]
         [switch]$startal
         
     )
     PROCESS {
+    
+    Write-Host "$adgroupname"
+    
+    #Get the AD Group members based on the AD Group name variable
+        $ADGroupMembers = Get-ADGroupMember $adgroupname    
+    
+    
+    If($klist){ Write-Host "klist was set"}
+
+    If($gpupdate){Write-Host "gpupdate was set"}
+
+    If($startal){Write-Host "startal was set"}
     }
 }
