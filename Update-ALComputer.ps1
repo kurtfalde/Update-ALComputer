@@ -42,10 +42,19 @@ function Update-ALComputer {
     Write-Host "$adgroupname"
     
     #Get the AD Group members based on the AD Group name variable
-        $ADGroupMembers = Get-ADGroupMember $adgroupname    
+        $Computers = Get-ADGroupMember $adgroupname    
     
     
-    If($klist){ Write-Host "klist was set"}
+    If($klist){ Write-Verbose "klist was set remotely clearing Kerberos tickets for all targets"
+        foreach($Computer in $Computers){
+            #Cycle through each computer remotely running klist to clear all tickets via WMI (in case of no PoSH remoting)
+            Write-Verbose "Clearing Kerberos tickets for $Computer"
+            Invoke-WmiMethod -ComputerName $Computer -Class Win32_Process -Name Create -ArgumentList "klist -lh 0 -li 0x3e7"
+                     
+        }
+
+
+        }
 
     If($gpupdate){Write-Host "gpupdate was set"}
 
