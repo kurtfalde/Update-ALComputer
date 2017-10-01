@@ -50,14 +50,27 @@ function Update-ALComputer {
             #Cycle through each computer remotely running klist to clear all tickets via WMI (in case of no PoSH remoting)
             Write-Verbose "Clearing Kerberos tickets for $Computer"
             Invoke-WmiMethod -ComputerName $Computer -Class Win32_Process -Name Create -ArgumentList "klist -lh 0 -li 0x3e7"
-                     
         }
+    }
 
-
+    If($gpupdate){Write-Verbose "gpupdate was set remotely forcing gpupdate /force /target:computer"
+        foreach($Computer in $Computers){
+            #Cycle through each computer remotely running gpudpate to force any new GPO's based on computer group membership
+            Write-Verbose "Running gpupdate for $Computer"
+            Invoke-WmiMethod -ComputerName $Computer -Class Win32_Process -Name Create -ArgumentList "gpupdate /force /target:computer"
         }
+    }
 
-    If($gpupdate){Write-Host "gpupdate was set"}
-
-    If($startal){Write-Host "startal was set"}
+    If($startal){Write-Verbose "startal was set"
+        foreach($Computer in $Computers){
+            #Cycle through each computer and attempt to set the appidsvc to automatic and start the service
+            Write-Verbose "Setting appidsvc for $Computer to automatic"
+            Invoke-WmiMethod -ComputerName $Computer -Class Win32_Process -Name Create -ArgumentList "sc config appidsvc start=auto"
+            Write-Verbose "Attempting to start appidsvc on $Computer"
+            Invoke-WmiMethod -ComputerName $Computer -Class Win32_Process -Name Create -ArgumentList "sc start appidsvc"
+        }
+    
+    }
+    
     }
 }
