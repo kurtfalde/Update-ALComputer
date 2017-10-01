@@ -1,5 +1,5 @@
 <#
-TEST
+
 .SYNOPSIS
 Retrieves computer names from a specified group in Active Directory and remotely performs various operations against these
 systems in support of AppLocker configuration.
