@@ -6,6 +6,9 @@ systems in support of AppLocker configuration.
 Requires administrative access to the remote systems
 Requires Active Directory cmdlets 
 
+.PARAMETER Computer
+Specifies an input name of a target workstation
+
 .PARAMETER ADGroupName
 Specifies the name of the computer group that should be used to query and perform operations against the member systems
 
@@ -20,6 +23,7 @@ If set this will perform a forced group policy refresh of the computer settings 
 If set this will set the appidsvc service to automatic and attempt to start the appidsvc on the target systems
 
 .EXAMPLE
+
 Update-ALcomputer -ADGroupName AppLocker-Audit -klist -gpupdate -startal
 
 #>
@@ -27,8 +31,9 @@ Update-ALcomputer -ADGroupName AppLocker-Audit -klist -gpupdate -startal
 function Update-ALComputer {
     [CmdletBinding()]
     param (
-        [parameter(Mandatory=$true,ValueFromPipeline=$true)]
-        [string[]]$adgroupname,
+        [string]$Computer,
+        
+        [string]$adgroupname,
         
         [switch]$klist,
         
@@ -38,11 +43,17 @@ function Update-ALComputer {
         
     )
     PROCESS {
+   
+    $Computers = @()
     
-    Write-Host "$adgroupname"
-    
+    #Add the Computer parameter to the Computers array
+    If($computer){$Computers += $Computer}
+        
     #Get the AD Group members based on the AD Group name variable
-        $Computers = Get-ADGroupMember $adgroupname    
+    If($adgroupname){$Computers += (Get-ADGroupMember $adgroupname).name}
+    
+    If(($Computers.Count) -eq 0){Write-host -foregroundcolor Red "No input systems specified... exiting"}
+    Else{
     
     
     If($klist){ Write-Verbose "klist was set remotely clearing Kerberos tickets for all targets"
@@ -70,7 +81,7 @@ function Update-ALComputer {
             Invoke-WmiMethod -ComputerName $Computer -Class Win32_Process -Name Create -ArgumentList "sc start appidsvc"
         }
     
-    }
-    
+        }
+        }
     }
 }
