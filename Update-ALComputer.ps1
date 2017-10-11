@@ -59,7 +59,7 @@ function Update-ALComputer {
         foreach($Computer in $Computers){
             #Cycle through each computer remotely running klist to clear all tickets via WMI (in case of no PoSH remoting)
             Write-Verbose "Clearing Kerberos tickets for $Computer"
-            Invoke-WmiMethod -ComputerName $Computer -Class Win32_Process -Name Create -ArgumentList "klist -lh 0 -li 0x3e7"
+            Invoke-WmiMethod -ComputerName $Computer -Class Win32_Process -Name Create -ArgumentList "klist -lh 0 -li 0x3e7 purge"
         }
     }
 
